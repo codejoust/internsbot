@@ -37,7 +37,7 @@ bot = Cinch::Bot.new do
 	    	end
 
 		def google_images(query)
-			json = JSON.parse(open('http://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&safe=active&q='+CGI.escape(query)).read)
+			json = JSON.parse(open('http://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&q='+CGI.escape(query)).read)
 			images = json['responseData']['results']
 			images[rand(images.length)]['unescapedUrl']
 		end
@@ -50,13 +50,30 @@ bot = Cinch::Bot.new do
 		end
 	end
 
+	on :channel do |m|
+		
+	end
+
 	on :channel, /^!autovoice (on|off)$/ do |m, option|
 		@autovoice = option == "on"
 		m.reply "Autovoice is now #{@autovoice ? 'enabled' : 'disabled'}"
 	end
 
 	on :message, /^.gifme/ do |m|
-		m.reply(get_gif() || "Err getting gif", true)
+		if (rand(3) == 0) 
+			m.reply('too many gifs...')
+		else
+			m.reply(get_gif() || "Err getting gif", true)
+		end
+	end
+
+	on :message, /(hipster|clown|scumbag|rohan|jason)( me)? (.*)/i do |m, type, msg, arg|
+		if arg.match /^https?:\/\//i
+			imgsrc = arg
+		else
+			imgsrc = google_images(arg)	
+		end
+		m.reply("http://faceup.me/img.jpg?overlay=#{type}&src=#{imgsrc}")
 	end
  
 	on :message, /^.urban (.+)/ do |m, term|
