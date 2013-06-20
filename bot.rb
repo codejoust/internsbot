@@ -11,14 +11,16 @@ TWSS.threshold = 9.0
 $password = gets
 puts 'got password'
 
+$config = JSON.load(open('config.json'))
+
 bot = Cinch::Bot.new do
 	configure do |c|
-		c.server = 'chat.ewr01.tumblr.net'
+		c.server = $config['server']
 		c.nick = '_internsbot'
-		c.user = 'iainnash'
+		c.user = $config['user']
 		c.verbose = true
-		c.channels = ['#Interns', '#Tumblr']
-		c.port = '6697'
+		c.channels = ['#Interns']
+		c.port = $config['port']
 		c.password = $password.chomp
 		c.ssl.use = true
 		c.ssl.verify = false 
@@ -48,10 +50,6 @@ bot = Cinch::Bot.new do
 		unless m.user.nick == bot.nick
 			m.channel.voice(m.user) if @autovoice
 		end
-	end
-
-	on :channel do |m|
-		
 	end
 
 	on :channel, /^!autovoice (on|off)$/ do |m, option|
@@ -100,7 +98,7 @@ bot = Cinch::Bot.new do
 	end
 
 	on :message, /did i break (.*)/i do |m, service|
-		m.reply('um, yes. you broke ' + service)
+		m.reply('um, yes. you broke ' + service, true)
 		m.reply('http://25.media.tumblr.com/a4d6c7d8d67f3133569a6993d05bdb87/tumblr_mog3us0CqJ1suqlmoo1_400.gif') 
 	end
 
@@ -109,14 +107,14 @@ bot = Cinch::Bot.new do
 	end
 
 	on :message, /^.image (.+)$/i do |m, search|
-		m.reply(google_images(search))
+		m.reply(google_images(search), true)
 	end
 
 	on :message, /^.moustache (.+)$/i do |m, search|
 		type = rand(3)
 		img = google_images(search)
 		m.reply(img)
-		m.reply("http://mustachify.me/#{type}?src=" + img)
+		m.reply("http://mustachify.me/#{type}?src=" + img, true)
 	end
 
 end
